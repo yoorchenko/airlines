@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="header">
+        <h1 >All Flights</h1>
+    </div>
+    {% for flight in flights %}
+    <div class="flight">
+        <div class="txt-wrap">
+            <h2 style="margin-top: 0;">{{ flight.origin }} to {{ flight.destination }}</h2>
+            <p>Duration: {{ flight.duration }} mins</p>
+            <a href="{{ url_for('flight', flight_id=flight.id) }}">Information</a>
+        </div>
+    </div>
+    {% endfor %}
+{% endblock %}
