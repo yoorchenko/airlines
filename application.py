@@ -1,9 +1,10 @@
 from models import *
 from flask import Flask, render_template, request, redirect, url_for
+import os
 
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:Yurchenko26@localhost:5432/lecture3"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
