@@ -1,5 +1,5 @@
 from models import *
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import os
 
 
@@ -22,12 +22,11 @@ def flight(flight_id):
     if flight is None:
         return render_template("error.html", message="No such flight")
 
-    passengers = Passenger.query.filter_by(flight_id = flight_id).all()
+    passengers = flight.passengers
+    #passengers = Passenger.query.filter_by(flight_id = flight_id).all()
     if request.method == "POST":
         name = request.form.get("name")
-        passenger = Passenger(name = name, flight_id = flight_id)
-        db.session.add(passenger)
-        db.session.commit()
+        flight.add_passenger(name=name)
         return redirect(f"/flight/{flight_id}")
 
     return render_template("flight.html", flight=flight, passengers=passengers)
@@ -45,8 +44,28 @@ def book():
     except ValueError:
         return render_template("error.html", message="Wrong flight id")
 
-    passenger = Passenger(name = name, flight_id = flight_id)
-    db.session.add(passenger)
-    db.session.commit()
+    flight = Flight.query.get(flight_id)
+    if not flight:
+        return render_template("error.html", message = "No such flight")
 
+    flight.add_passenger(name=name)
     return redirect(f"/flight/{flight_id}")
+
+@app.route("/api/flights/<int:flight_id>")
+def flight_api(flight_id):
+    flight  = Flight.query.get(flight_id)
+    if flight is None:
+        return jsonify({"error": "Invalid flight_id"}), 422
+
+    passengers = flight.passengers
+    names = []
+    for passenger in passengers:
+        names.append(passenger.name)
+    return jsonify({
+        "origin": flight.origin,
+        "destination": flight.destination,
+        "duration": flight.duration,
+        "passengers": names
+    })
+
+
